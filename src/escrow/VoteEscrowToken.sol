@@ -33,17 +33,18 @@ contract VoteEscrowToken is IVoteEscrowToken, ReentrancyGuard, ERC20, WithPausab
   //                                         Lock & Unlock
   // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   function _unlockWithPenalty(uint256 penalty) internal {
+    uint256 locked = super._getLockedTokenBalance(msg.sender);
     uint256 amount = super._unlock(msg.sender, penalty);
 
     // Pull and burn veNpm
-    SafeERC20.safeTransferFrom(this, msg.sender, address(this), super._getLockedTokenBalance(msg.sender));
+    SafeERC20.safeTransferFrom(this, msg.sender, address(this), locked);
     super._burn(address(this), amount);
 
     // Transfer NPM
     npm.safeTransfer(msg.sender, amount - penalty);
 
     if (penalty > 0) {
-      npm.safeTransfer(feeTo, amount - penalty);
+      npm.safeTransfer(feeTo, penalty);
     }
   }
 
