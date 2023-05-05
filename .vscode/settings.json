@@ -30,5 +30,9 @@
     "nomiclabs",
     "tokenholder",
     "zerox"
-  ]
+  ],
+  "git.ignoredRepositories": [
+    "./lib/openzeppelin-contracts",
+    "./lib/forge-std",
+  ],
 }
