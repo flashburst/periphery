@@ -173,7 +173,7 @@ contract GaugeControllerRegistry is AccessControlUpgradeable, PausableUpgradeabl
         revert PoolNotActiveError(key);
       }
 
-      _emissionsPerBlock[key] = distribution[i].emission / _blocksPerEpoch;
+      _emissionsPerEpoch[key] = distribution[i].emission;
       total += distribution[i].emission;
 
       emit GaugeSet(epoch, key, distribution[i].emission);
@@ -201,6 +201,7 @@ contract GaugeControllerRegistry is AccessControlUpgradeable, PausableUpgradeabl
     IERC20Upgradeable npm = IERC20Upgradeable(_rewardToken);
 
     _sumNpmWithdrawals += amount;
+    _emissionsPerEpoch[key] -= amount;
 
     npm.safeTransfer(_msgSender(), amount);
 
@@ -307,7 +308,7 @@ contract GaugeControllerRegistry is AccessControlUpgradeable, PausableUpgradeabl
   }
 
   function getEmissionPerBlock(bytes32 key) external view override returns (uint256) {
-    return _emissionsPerBlock[key];
+    return _emissionsPerEpoch[key] / _blocksPerEpoch;
   }
 
   // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

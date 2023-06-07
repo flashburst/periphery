@@ -25,7 +25,7 @@ abstract contract GaugeControllerRegistryState is IGaugeControllerRegistry {
 
   mapping(bytes32 => bool) public _validPools;
   mapping(bytes32 => bool) public _activePools;
-  mapping(bytes32 => uint256) public _emissionsPerBlock;
+  mapping(bytes32 => uint256) public _emissionsPerEpoch;
   mapping(uint256 => uint256) public _gaugeAllocations;
 
   mapping(bytes32 => PoolSetupArgs) public _pools;
