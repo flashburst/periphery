@@ -9,6 +9,7 @@ import "../gauge-registry/GaugeControllerRegistry.sol";
 import "./interfaces/ILiquidityGaugePool.sol";
 import "../escrow/interfaces/IVoteEscrowToken.sol";
 import "./LiquidityGaugePoolState.sol";
+import "hardhat/console.sol";
 
 abstract contract LiquidityGaugePoolReward is ILiquidityGaugePool, LiquidityGaugePoolState, ReentrancyGuardUpgradeable, ContextUpgradeable {
   using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -72,9 +73,11 @@ abstract contract LiquidityGaugePoolReward is ILiquidityGaugePool, LiquidityGaug
       return 0;
     }
 
+    console.log("totalBlocks:", totalBlocks);
+
     // Combining points of LP tokens and veToken
-    uint256 myWeight = _poolStakedByMe[key][account] + ((_myVotingPower[account] * veBoostRatio) / _denominator());
-    uint256 totalWeight = _poolStakedByEveryone[key] + ((_totalVotingPower * veBoostRatio) / _denominator());
+    uint256 myWeight = _myStakingWeight[key][account] + ((_myVotingPower[account] * veBoostRatio) / _denominator());
+    uint256 totalWeight = _totalStakingWeight[key] + ((_totalVotingPower * veBoostRatio) / _denominator());
 
     if (totalWeight == 0) {
       return 0;
@@ -107,6 +110,10 @@ abstract contract LiquidityGaugePoolReward is ILiquidityGaugePool, LiquidityGaug
 
     _poolLastRewardHeights[key][_msgSender()] = block.number;
 
+    IGaugeControllerRegistry.Epoch memory epoch = IGaugeControllerRegistry(_registry).getEpoch();
+    _myStakingWeight[key][_msgSender()] -= _poolStakedByMe[key][_msgSender()] * (epoch.endBlock - block.number);
+    _totalStakingWeight[key] -= _poolStakedByMe[key][_msgSender()] * (epoch.endBlock - block.number);
+
     if (rewards == 0) {
       return pool;
     }
@@ -125,6 +132,7 @@ abstract contract LiquidityGaugePoolReward is ILiquidityGaugePool, LiquidityGaug
       IERC20Upgradeable(_rewardToken).safeTransfer(_treasury, platformFee);
     }
 
+    // console.log("Rewards", rewards);
     emit LiquidityGaugeRewardsWithdrawn(key, _msgSender(), _treasury, rewards, platformFee);
   }
 

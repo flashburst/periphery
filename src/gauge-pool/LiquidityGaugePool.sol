@@ -93,6 +93,10 @@ contract LiquidityGaugePool is LiquidityGaugePoolReward, OwnableUpgradeable, Wit
     _poolStakedByMe[key][_msgSender()] += amount;
     _poolStakedByEveryone[key] += amount;
 
+    IGaugeControllerRegistry.Epoch memory epoch = IGaugeControllerRegistry(_registry).getEpoch();
+    _myStakingWeight[key][_msgSender()] += amount * (epoch.endBlock - block.number);
+    _totalStakingWeight[key] += amount * (epoch.endBlock - block.number);
+
     emit LiquidityGaugeDeposited(key, _msgSender(), pool.staking.token, amount);
   }
 
