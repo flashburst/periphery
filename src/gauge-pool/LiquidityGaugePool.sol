@@ -29,7 +29,7 @@ contract LiquidityGaugePool is IAccessControlUtil, ReentrancyGuardUpgradeable, A
     _setRoleAdmin(NS_ROLES_PAUSER, DEFAULT_ADMIN_ROLE);
     _setRoleAdmin(NS_ROLES_RECOVERY_AGENT, DEFAULT_ADMIN_ROLE);
 
-    _setupRole(DEFAULT_ADMIN_ROLE, admin);
+    _grantRole(DEFAULT_ADMIN_ROLE, admin);
 
     _setPool(args);
   }
@@ -138,6 +138,10 @@ contract LiquidityGaugePool is IAccessControlUtil, ReentrancyGuardUpgradeable, A
   //                                 Gauge Controller Registry Only
   // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   function setEpoch(uint256 epoch, uint256 epochDuration, uint256 rewards) external override onlyRegistry {
+    if (epoch <= _epoch) {
+      revert InvalidArgumentError("epoch");
+    }
+
     _updateReward(address(0));
 
     if (epochDuration > 0) {
@@ -150,10 +154,6 @@ contract LiquidityGaugePool is IAccessControlUtil, ReentrancyGuardUpgradeable, A
       uint256 remaining = _epochEndTimestamp - block.timestamp;
       uint256 leftover = remaining * _rewardPerSecond;
       _rewardPerSecond = (rewards + leftover) / _poolInfo.epochDuration;
-    }
-
-    if (epoch <= _epoch) {
-      revert InvalidArgumentError("epoch");
     }
 
     _epoch = epoch;
