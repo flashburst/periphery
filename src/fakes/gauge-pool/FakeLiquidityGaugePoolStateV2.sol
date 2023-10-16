@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.12;
 
-import "./interfaces/ILiquidityGaugePool.sol";
+import "../../gauge-pool/interfaces/ILiquidityGaugePool.sol";
 
-abstract contract LiquidityGaugePoolState is ILiquidityGaugePool {
+abstract contract FakeLiquidityGaugePoolStateV2 is ILiquidityGaugePool {
   // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   //                                           Version 1
   // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -36,5 +36,11 @@ abstract contract LiquidityGaugePoolState is ILiquidityGaugePool {
   mapping(address => uint256) public _lockedByMe;
   mapping(address => uint256) public _myVotingPower;
   mapping(address => uint256) public _pendingRewardToDistribute;
-  uint256[50] __gap;
+
+
+  // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  //                                           Version 2
+  // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+  address public _newStorageVariable;
+  uint256[49] public __gap;
 }

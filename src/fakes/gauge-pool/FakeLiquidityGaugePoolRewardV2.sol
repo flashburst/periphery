@@ -2,10 +2,10 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.12;
 
-import "./LiquidityGaugePoolController.sol";
-import "../escrow/interfaces/IVoteEscrowToken.sol";
+import "./FakeLiquidityGaugePoolControllerV2.sol";
+import "../../escrow/interfaces/IVoteEscrowToken.sol";
 
-abstract contract LiquidityGaugePoolReward is LiquidityGaugePoolController {
+abstract contract FakeLiquidityGaugePoolRewardV2 is FakeLiquidityGaugePoolControllerV2 {
   function _denominator() internal pure returns (uint256) {
     return 10_000;
   }
@@ -37,11 +37,7 @@ abstract contract LiquidityGaugePoolReward is LiquidityGaugePoolController {
     _lastRewardTimestamp = _getEpochEndTimestamp();
 
     if (account != address(0)) {
-      uint256 previous = _pendingRewardToDistribute[account];
-      uint256 current = _getPendingRewards(account);
-
-      _pendingRewardToDistribute[account] = current;
-      _totalPendingRewards = _totalPendingRewards + current - previous;
+      _pendingRewardToDistribute[account] = _getPendingRewards(account);
       _lastRewardPerTokenUnit[account] = _rewardPerTokenUnit;
     }
 
