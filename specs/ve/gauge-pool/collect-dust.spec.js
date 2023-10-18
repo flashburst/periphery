@@ -118,9 +118,20 @@ describe('Liquidity Gauge Pool: Collect Dust', () => {
     await contracts.npm.mint(contracts.gaugePool.address, rewards)
     await contracts.gaugePool.connect(registry).setEpoch(4, 1000, rewards)
 
-    // Approximately 25% of rewards are collected as rewards
+    // Approximately 25% of rewards are collected as dust
     ;(await contracts.npm.balanceOf(registry.address)).should.be.greaterThan(rewards * 25n / 100n)
     ;(await contracts.npm.balanceOf(registry.address)).should.be.lessThan(rewards * 26n / 100n)
+
+    await mine(100, { interval: 989 }) // ends epoch 4
+
+    // users should be able to withdraw their rewards
+    await contracts.gaugePool.connect(a).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(b).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(c).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(a).exit()
+    await contracts.gaugePool.connect(b).exit()
+    await contracts.gaugePool.connect(c).exit()
+    await contracts.gaugePool.connect(d).exit()
   })
 })
 
@@ -213,7 +224,7 @@ describe('Liquidity Gauge Pool: Collect Dust (StakingToken == RewardToken)', () 
     await contracts.npm.connect(d).approve(contracts.gaugePool.address, amountToDeposit)
     await contracts.gaugePool.connect(d).deposit(amountToDeposit)
 
-    await mine(10, { interval: 997 })
+    await mine(100, { interval: 997 })
 
     // 3 wallets interact again at epoch end
     await contracts.npm.mint(a.address, amountToDeposit)
@@ -232,8 +243,19 @@ describe('Liquidity Gauge Pool: Collect Dust (StakingToken == RewardToken)', () 
     await contracts.npm.mint(contracts.gaugePool.address, rewards)
     await contracts.gaugePool.connect(registry).setEpoch(4, 1000, rewards)
 
-    // Approximately 25% of rewards are collected as rewards
+    // Approximately 25% of rewards are collected as dust
     ;(await contracts.npm.balanceOf(registry.address)).should.be.greaterThan(rewards * 25n / 100n)
     ;(await contracts.npm.balanceOf(registry.address)).should.be.lessThan(rewards * 26n / 100n)
+
+    await mine(100, { interval: 997 }) // ends epoch 4
+
+    // users should be able to withdraw their rewards
+    await contracts.gaugePool.connect(a).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(b).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(c).withdraw(amountToDeposit)
+    await contracts.gaugePool.connect(a).exit()
+    await contracts.gaugePool.connect(b).exit()
+    await contracts.gaugePool.connect(c).exit()
+    await contracts.gaugePool.connect(d).exit()
   })
 })
